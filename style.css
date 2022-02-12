@@ -32,6 +32,10 @@ body{
     margin-right: 1rem;
 }
 
+.cellprop-actions-cont > *:hover{
+    cursor: pointer;
+}
+
 .cellprop-actions-cont > select{
     outline: none;
     border: none;
@@ -67,6 +71,7 @@ body{
 
 .address-bar{
     width: 5rem;
+    text-align: center;
 }
 
 .formula-bar{
@@ -113,5 +118,79 @@ display: inline-block;
 
 .grid-cont{
     height: calc(100vh - 3rem - 3rem - 2rem - 3rem);
+    position: relative;
+    overflow: scroll;
+    background-color: #f3f2f0;
 }
 
+.top-left-dummy-box{
+    height: 2rem;
+    width: 2rem;
+    background-color: #747d8c;
+    position: fixed;
+    z-index: 4;
+}
+
+.address-col-cont{
+    position: sticky;
+    top: 2rem;
+    left: 0;
+    
+}
+
+.address-row-cont{
+    height: 2rem;
+    display: flex;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    left: 2rem;
+}
+
+.cells-cont{
+    position: absolute;
+    top: 0;
+    left: 2rem;
+}
+
+.address-col{
+    height: 2rem;
+    width: 2rem;
+    border: 1px solid #dfe4ea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.address-row{
+    height: 2rem;
+    width: 5rem;
+    border: 1px solid #dfe4ea;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.row-cont{
+    display: flex;
+}
+
+.cell{
+    height: 2rem;
+    width: 5rem;
+    border: 1px solid #dfe4ea;
+    outline: none;
+}
+
+.color-prop{
+    position: relative;
+}
+
+.color-prop > input{
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+}
