@@ -16,7 +16,7 @@ for (let i = 0; i < rows; i++) {
 }
 
 let formulaBar = document.querySelector(".formula-bar");
-formulaBar.addEventListener("keydown", (e) => {
+formulaBar.addEventListener("keydown", async (e) => {
     let inputFormula = formulaBar.value
     if (e.key == "Enter" && inputFormula) {
         let address = addressBar.value;
@@ -24,6 +24,24 @@ formulaBar.addEventListener("keydown", (e) => {
         if (inputFormula != cellProp.formula) {
             removeChildFromParent(cellProp.formula);
         }
+        addChildToGraphComponent(inputFormula, address);
+
+        // check formula is cyclic or not, then only evaluate.
+        // True -> cyclic; False -> non-cyclic;
+        let cycleResponse = isGraphCyclic(graphComponentMatrix);
+        if (cycleResponse) {
+            // alert('Your formula is cyclic!!!');
+            let responce = confirm("Your formula is cyclic. Do you want to trace your path?");
+            while (responce == true) {
+                await isGraphCyclicTracePath(graphComponentMatrix, cycleResponse); // we want to complete full iteration of color tracking, so we will attach
+                //  wait here as well.
+                responce = confirm("Your formula is cyclic. Do you want to trace your path?");
+            }
+
+            removeChildFromGraphComponent(inputFormula, address);
+            return;
+        }
+
         let evaluatedValue = evaluateFormula(inputFormula);
         // To update cell UI and cellProp in DB
         setCellUIAndCellProp(evaluatedValue, inputFormula, address);
@@ -33,10 +51,34 @@ formulaBar.addEventListener("keydown", (e) => {
     }
 })
 
-function updateChildrenCells(parentAddress){
+function addChildToGraphComponent(formula, childAddress) {
+    let [crid, ccid] = decodeRIDCIDFromAddress(childAddress); // [childRowID, childColID]
+    let encodedFormula = formula.split(" ");
+    for (let i = 0; i < encodedFormula.length; i++) {
+        let asciiValue = encodedFormula[i].charCodeAt(0);
+        if (asciiValue >= 65 && asciiValue <= 90) {
+            let [prid, pcid] = decodeRIDCIDFromAddress(encodedFormula[i]);
+            graphComponentMatrix[prid][pcid].push([crid, ccid]);
+        }
+    }
+}
+
+function removeChildFromGraphComponent(formula, childAddress) {
+    let [crid, ccid] = decodeRIDCIDFromAddress(childAddress); // [childRowID, childColID]
+    let encodedFormula = formula.split(" ");
+    for (let i = 0; i < encodedFormula.length; i++) {
+        let asciiValue = encodedFormula[i].charCodeAt(0);
+        if (asciiValue >= 65 && asciiValue <= 90) {
+            let [prid, pcid] = decodeRIDCIDFromAddress(encodedFormula[i]);
+            graphComponentMatrix[prid][pcid].pop();
+        }
+    }
+}
+
+function updateChildrenCells(parentAddress) {
     let [parentCell, parentCellProp] = getCellAndCellProp(parentAddress);
     let children = parentCellProp.children;
-    for (let i = 0; i < children.length; i++){
+    for (let i = 0; i < children.length; i++) {
         let childAddress = children[i];
         let [childCell, childCellProp] = getCellAndCellProp(childAddress);
         let childFormula = childCellProp.formula;
